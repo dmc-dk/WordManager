@@ -9,6 +9,11 @@ app = FastAPI()
 TEMPLATE_DIR = Path('templates')
 OUTPUT_DIR = Path('generated')
 
+
+# ensure storage directories exist
+TEMPLATE_DIR.mkdir(exist_ok=True)
+OUTPUT_DIR.mkdir(exist_ok=True)
+
 @app.post('/templates')
 async def create_template(style_desc: str = '', hint: str = '', reference: UploadFile | None = None):
     """Create a blank Word template.
