@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+templates/
+generated/
+node_modules/
+frontend/dist/
