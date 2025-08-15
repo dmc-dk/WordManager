@@ -9,6 +9,7 @@ app = FastAPI()
 TEMPLATE_DIR = Path('templates')
 OUTPUT_DIR = Path('generated')
 
+
 # ensure storage directories exist
 TEMPLATE_DIR.mkdir(exist_ok=True)
 OUTPUT_DIR.mkdir(exist_ok=True)
