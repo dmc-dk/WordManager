@@ -67,6 +67,7 @@ async def create_template(req: TemplateRequest):
     doc.add_paragraph('Hello {{ name }}!')
 
     doc.save(template_path)
+
     template_id = template_path.stem
     return {'template_id': template_id, 'download_url': f'/templates/{template_id}'}
 

@@ -15,6 +15,7 @@ export default function App() {
     setCreating(true);
     setMessage('');
     setDownloadUrl('');
+
     try {
       const res = await fetch('/templates', {
         method: 'POST',
@@ -33,6 +34,18 @@ export default function App() {
     } finally {
       setCreating(false);
     }
+
+    const res = await fetch('/templates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ style_desc: styleDesc, hint })
+    });
+    const data = await res.json();
+    setTemplateId(data.template_id);
+    setDownloadUrl(data.download_url);
+    setMessage(`Created template ${data.template_id}`);
+    setCreating(false);
+
   }
 
   async function generateDocument(e) {
