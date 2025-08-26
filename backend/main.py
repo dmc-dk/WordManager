@@ -9,13 +9,48 @@ import uuid
 from pathlib import Path
 
 app = FastAPI()
-TEMPLATE_DIR = Path('templates')
-OUTPUT_DIR = Path('generated')
+
+# Directories for storing templates and generated documents.  Use paths relative
+# to this file so the API functions even when the working directory changes.
+BASE_DIR = Path(__file__).resolve().parent
+TEMPLATE_DIR = BASE_DIR / 'templates'
+OUTPUT_DIR = BASE_DIR / 'generated'
 
 
 # ensure storage directories exist
-TEMPLATE_DIR.mkdir(exist_ok=True)
-OUTPUT_DIR.mkdir(exist_ok=True)
+TEMPLATE_DIR.mkdir(parents=True, exist_ok=True)
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+
+class TemplateRequest(BaseModel):
+    """Request body for creating a template."""
+
+    style_desc: str = ''
+    hint: str = 'minimal'
+
+
+def _apply_hint_style(doc: Document, hint: str) -> None:
+    """Apply basic styling to the document based on the hint.
+
+    This is a very small demo of what could be a much more powerful styling
+    engine.  The goal is simply to make the produced template visually reflect
+    the selected hint so the user sees that something has happened when the
+    Create button is pressed.
+    """
+
+    style = doc.styles['Normal'].font
+    if hint == 'corporate':
+        style.name = 'Calibri'
+        style.size = Pt(12)
+    elif hint == 'modern':
+        style.name = 'Arial'
+        style.size = Pt(11)
+    elif hint == 'classic':
+        style.name = 'Times New Roman'
+        style.size = Pt(12)
+    else:  # minimal
+        style.name = 'Calibri'
+        style.size = Pt(11)
+
 
 class TemplateRequest(BaseModel):
     """Request body for creating a template."""
@@ -66,10 +101,17 @@ async def create_template(req: TemplateRequest):
     # Include a simple placeholder so the template can be rendered later
     doc.add_paragraph('Hello {{ name }}!')
 
-    doc.save(template_path)
+
+    try:
+        doc.save(template_path)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f'Failed to save template: {exc}')
 
     template_id = template_path.stem
-    return {'template_id': template_id, 'download_url': f'/templates/{template_id}'}
+    return {
+        'template_id': template_id,
+        'download_url': f'/templates/{template_id}',
+    }
 
 
 @app.get('/templates/{template_id}')
