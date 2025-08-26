@@ -52,6 +52,37 @@ def _apply_hint_style(doc: Document, hint: str) -> None:
         style.size = Pt(11)
 
 
+class TemplateRequest(BaseModel):
+    """Request body for creating a template."""
+
+    style_desc: str = ''
+    hint: str = 'minimal'
+
+
+def _apply_hint_style(doc: Document, hint: str) -> None:
+    """Apply basic styling to the document based on the hint.
+
+    This is a very small demo of what could be a much more powerful styling
+    engine.  The goal is simply to make the produced template visually reflect
+    the selected hint so the user sees that something has happened when the
+    Create button is pressed.
+    """
+
+    style = doc.styles['Normal'].font
+    if hint == 'corporate':
+        style.name = 'Calibri'
+        style.size = Pt(12)
+    elif hint == 'modern':
+        style.name = 'Arial'
+        style.size = Pt(11)
+    elif hint == 'classic':
+        style.name = 'Times New Roman'
+        style.size = Pt(12)
+    else:  # minimal
+        style.name = 'Calibri'
+        style.size = Pt(11)
+
+
 @app.post('/templates')
 async def create_template(req: TemplateRequest):
     """Create a Word template with a very simple style applied.
@@ -69,6 +100,7 @@ async def create_template(req: TemplateRequest):
 
     # Include a simple placeholder so the template can be rendered later
     doc.add_paragraph('Hello {{ name }}!')
+
 
     try:
         doc.save(template_path)
