@@ -1,4 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
+main
 from pydantic import BaseModel
 from docxtpl import DocxTemplate
 from docx import Document
@@ -66,7 +67,7 @@ async def create_template(req: TemplateRequest):
     doc.add_paragraph('Hello {{ name }}!')
 
     doc.save(template_path)
-    return {'template_id': template_path.stem}
+ main
 
 @app.post('/documents/{template_id}')
 async def generate_document(template_id: str, data: UploadFile = File(...)):
