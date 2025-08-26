@@ -15,6 +15,26 @@ export default function App() {
     setCreating(true);
     setMessage('');
     setDownloadUrl('');
+
+    try {
+      const res = await fetch('/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ style_desc: styleDesc, hint })
+      });
+      if (!res.ok) {
+        throw new Error(`Server responded ${res.status}`);
+      }
+      const data = await res.json();
+      setTemplateId(data.template_id);
+      setDownloadUrl(data.download_url);
+      setMessage(`Created template ${data.template_id}`);
+    } catch (err) {
+      setMessage(`Failed to create template: ${err.message}`);
+    } finally {
+      setCreating(false);
+    }
+
     const res = await fetch('/templates', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -25,6 +45,7 @@ export default function App() {
     setDownloadUrl(data.download_url);
     setMessage(`Created template ${data.template_id}`);
     setCreating(false);
+
   }
 
   async function generateDocument(e) {

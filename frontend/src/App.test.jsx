@@ -13,7 +13,7 @@ describe('App', () => {
 
   it('shows progress and download link when creating template', async () => {
     const mockResp = { template_id: 'abc', download_url: '/templates/abc' };
-    global.fetch = vi.fn().mockResolvedValue({ json: () => Promise.resolve(mockResp) });
+    global.fetch = vi.fn().mockResolvedValue({ ok: true, json: () => Promise.resolve(mockResp) });
 
     render(<App />);
     fireEvent.click(screen.getAllByText('Create')[0]);
@@ -22,5 +22,15 @@ describe('App', () => {
     await screen.findByText('Download template');
     expect(screen.getByRole('link', { name: /download template/i })).toHaveAttribute('href', '/templates/abc');
     expect(global.fetch).toHaveBeenCalled();
+  });
+
+  it('handles errors and clears progress state', async () => {
+    global.fetch = vi.fn().mockRejectedValue(new Error('network'));
+
+    render(<App />);
+    fireEvent.click(screen.getAllByText('Create')[0]);
+
+    await screen.findByText(/Failed to create template/);
+    expect(screen.getAllByText('Create')[0]).toBeEnabled();
   });
 });

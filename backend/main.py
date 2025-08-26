@@ -1,5 +1,5 @@
 from fastapi import FastAPI, UploadFile, File, HTTPException
-main
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from docxtpl import DocxTemplate
 from docx import Document
@@ -67,7 +67,18 @@ async def create_template(req: TemplateRequest):
     doc.add_paragraph('Hello {{ name }}!')
 
     doc.save(template_path)
- main
+
+    template_id = template_path.stem
+    return {'template_id': template_id, 'download_url': f'/templates/{template_id}'}
+
+
+@app.get('/templates/{template_id}')
+async def download_template(template_id: str):
+    """Return the generated template for download."""
+    template_path = TEMPLATE_DIR / f'{template_id}.docx'
+    if not template_path.exists():
+        raise HTTPException(status_code=404, detail='Template not found')
+    return FileResponse(template_path, media_type='application/vnd.openxmlformats-officedocument.wordprocessingml.document', filename=f'{template_id}.docx')
 
 @app.post('/documents/{template_id}')
 async def generate_document(template_id: str, data: UploadFile = File(...)):
