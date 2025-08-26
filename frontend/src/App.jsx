@@ -7,17 +7,32 @@ export default function App() {
   const [hint, setHint] = useState('minimal');
   const [jsonData, setJsonData] = useState('{\n  "customer": {"name": "Alice"}\n}');
   const [message, setMessage] = useState('');
+  const [creating, setCreating] = useState(false);
+  const [downloadUrl, setDownloadUrl] = useState('');
 
   async function createTemplate(e) {
     e.preventDefault();
-    const res = await fetch('/templates', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ style_desc: styleDesc, hint })
-    });
-    const data = await res.json();
-    setTemplateId(data.template_id);
-    setMessage(`Created template ${data.template_id}`);
+    setCreating(true);
+    setMessage('');
+    setDownloadUrl('');
+    try {
+      const res = await fetch('/templates', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ style_desc: styleDesc, hint })
+      });
+      if (!res.ok) {
+        throw new Error(`Server responded ${res.status}`);
+      }
+      const data = await res.json();
+      setTemplateId(data.template_id);
+      setDownloadUrl(data.download_url);
+      setMessage(`Created template ${data.template_id}`);
+    } catch (err) {
+      setMessage(`Failed to create template: ${err.message}`);
+    } finally {
+      setCreating(false);
+    }
   }
 
   async function generateDocument(e) {
@@ -55,8 +70,13 @@ export default function App() {
               <option value="classic">Classic</option>
             </select>
           </div>
-          <button type="submit">Create</button>
+          <button type="submit" disabled={creating}>{creating ? 'Creating...' : 'Create'}</button>
         </form>
+        {downloadUrl && (
+          <p>
+            <a href={downloadUrl}>Download template</a>
+          </p>
+        )}
       </section>
 
       <section className="card">
