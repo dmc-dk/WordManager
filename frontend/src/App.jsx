@@ -33,6 +33,7 @@ export default function App() {
     } finally {
       setCreating(false);
     }
+
     const res = await fetch('/templates', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -43,6 +44,7 @@ export default function App() {
     setDownloadUrl(data.download_url);
     setMessage(`Created template ${data.template_id}`);
     setCreating(false);
+
 
 
   }

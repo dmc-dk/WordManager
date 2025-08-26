@@ -52,6 +52,7 @@ def _apply_hint_style(doc: Document, hint: str) -> None:
         style.size = Pt(11)
 
 
+
 class TemplateRequest(BaseModel):
     """Request body for creating a template."""
 
@@ -81,6 +82,7 @@ def _apply_hint_style(doc: Document, hint: str) -> None:
     else:  # minimal
         style.name = 'Calibri'
         style.size = Pt(11)
+
 
 
 @app.post('/templates')
